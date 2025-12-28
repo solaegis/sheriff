@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  setup:
+    desc: Setup development environment
+    silent: true
+    cmds:
+      - uv sync
+      - uv run pre-commit install
+
+  lint:
+    desc: Run linter
+    silent: true
+    cmds:
+      - uv run ruff check .
+
+  format:
+    desc: Run formatter
+    silent: true
+    cmds:
+      - uv run ruff format .
+
+  test:
+    desc: Run tests
+    silent: true
+    cmds:
+      - uv run pytest || [ $? -eq 5 ]
+
+  check:
+    desc: Run all quality checks
+    cmds:
+      - task: lint
+      - task: format
+      - task: check:type
+      - task: test
+
+  check:type:
+    desc: Run static type analysis
+    silent: true
+    cmds:
+      - uv run mypy .
+
+  release:
+    desc: Create a new release
+    silent: true
+    cmds:
+      - uv run cz bump --files-only
+
+  pip:audit:
+    desc: Audit dependencies for security vulnerabilities
+    silent: true
+    cmds:
+      - uv run pip-audit
+
+  upgrade:
+    desc: Upgrade all dependencies to latest versions
+    silent: true
+    cmds:
+      - uv lock --upgrade
+      - uv sync
+
+  docs:serve:
+    desc: Serve documentation locally
+    silent: true
+    cmds:
+      - uv run mkdocs serve
+
+  docs:build:
+    desc: Build documentation
+    silent: true
+    cmds:
+      - uv run mkdocs build

@@ -1,0 +1,139 @@
+# yaml-language-server: $schema=./schemas/policies.schema.json
+policies:
+  # =============================================================================
+  # Security Policies
+  # =============================================================================
+
+  - name: no-external-ip
+    description: "Block instances with public IP addresses"
+    resource: instance
+    severity: high
+    filters:
+      - "networkInterfaces.0.accessConfigs": present
+    actions:
+      - alert
+
+  - name: require-shielded-vm
+    description: "Require Shielded VM with Secure Boot enabled"
+    resource: instance
+    severity: medium
+    filters:
+      - "shieldedInstanceConfig.enableSecureBoot": false
+    actions:
+      - alert
+
+  - name: no-default-service-account
+    description: "Block use of default compute service account"
+    resource: instance
+    severity: high
+    filters:
+      - "serviceAccounts.0.email": regex:"-compute@developer.gserviceaccount.com$"
+    actions:
+      - alert
+
+  - name: no-serial-port
+    description: "Block instances with serial port enabled"
+    resource: instance
+    severity: medium
+    filters:
+      - "metadata.items": contains:serial-port-enable
+    actions:
+      - alert
+
+  # =============================================================================
+  # Compliance Policies
+  # =============================================================================
+
+  - name: require-env-label
+    description: "Require 'env' label on all instances"
+    resource: instance
+    severity: high
+    filters:
+      - "labels.env": absent
+    actions:
+      - alert
+
+  - name: require-owner-label
+    description: "Require 'owner' label on all instances"
+    resource: instance
+    severity: medium
+    filters:
+      - "labels.owner": absent
+    actions:
+      - alert
+
+  - name: require-cost-center-label
+    description: "Require 'cost-center' label on all instances"
+    resource: instance
+    severity: medium
+    filters:
+      - "labels.cost-center": absent
+    actions:
+      - alert
+
+  - name: region-restriction
+    description: "Restrict instances to approved regions"
+    resource: instance
+    severity: high
+    filters:
+      - "zone":
+          not_in:
+            - us-east4-a
+            - us-east4-b
+            - us-east4-c
+            - us-central1-a
+            - us-central1-b
+    actions:
+      - alert
+
+  # =============================================================================
+  # Cost Policies
+  # =============================================================================
+
+  - name: no-gpu-in-nonprod
+    description: "Block GPU instances in non-production environments"
+    resource: instance
+    severity: medium
+    filters:
+      - "guestAccelerators": present
+      - "labels.env": not_equals:prod
+    actions:
+      - alert
+
+  - name: max-instance-size
+    description: "Alert on large instance types (16+ vCPUs)"
+    resource: instance
+    severity: low
+    filters:
+      - "machineType": regex:"(n1-standard-16|n1-standard-32|n1-standard-64|n2-standard-)"
+    actions:
+      - log
+
+  - name: preemptible-dev
+    description: "Recommend preemptible for dev environments"
+    resource: instance
+    severity: low
+    filters:
+      - "labels.env": dev
+      - "scheduling.preemptible": false
+    actions:
+      - log
+
+  # =============================================================================
+  # Operational Policies
+  # =============================================================================
+
+  - name: instance-dns-registration
+    description: "Auto-register DNS for labeled instances"
+    resource: instance
+    filters:
+      - "labels.dns": present
+    actions:
+      - dns
+      - inventory
+
+  - name: forwarding-rule-dns
+    description: "Auto-register DNS for forwarding rules"
+    resource: forwardingRule
+    actions:
+      - dns

@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+site_name: Sheriff
+site_description: GCP Resource Life-Cycle Management Tool
+site_url: https://solaegis.github.io/sheriff
+repo_url: https://github.com/solaegis/sheriff
+repo_name: solaegis/sheriff
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - content.code.copy
+    - content.code.annotate
+    - search.highlight
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+            show_root_heading: true
+            show_category_heading: true
+            members_order: source
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Configuration: getting-started/configuration.md
+  - User Guide:
+      - Policies: user-guide/policies.md
+      - Actions: user-guide/actions.md
+      - Filters: user-guide/filters.md
+  - API Reference:
+      - sheriff: api/sheriff.md
+      - policy_engine: api/policy_engine.md
+      - cloud_dns: api/cloud_dns.md
+      - gcp_inventory: api/gcp_inventory.md
+      - api: api/api.md
+      - config: api/config.md
+  - Development:
+      - Contributing: development/contributing.md
+      - Architecture: development/architecture.md

@@ -1,0 +1,114 @@
+[project]
+name = "sheriff"
+version = "0.1.0"
+description = "Sheriff - GCP resource life-cycle management tool"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+dependencies = [
+    "dnspython>=2.8.0",
+    "google-api-python-client>=2.187.0",
+    "google-auth>=2.45.0",
+    "google-cloud-asset>=4.1.0",
+    "google-cloud-compute>=1.40.0",
+    "google-cloud-datastore>=2.23.0",
+    "google-cloud-logging>=3.13.0",
+    "google-cloud-monitoring>=2.28.0",
+    "google-cloud-pubsub>=2.34.0",
+    "google-cloud-resource-manager>=1.15.0",
+    "httpx>=0.28.1",
+    "pyyaml>=6.0.3",
+    "requests>=2.32.5",
+]
+
+[project.scripts]
+sheriff = "sheriff.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[dependency-groups]
+dev = [
+    "commitizen>=4.10.1",
+    "mypy>=1.19.1",
+    "pip-audit>=2.10.0",
+    "pre-commit>=3.8.0",
+    "pytest>=7.4.4",
+    "pytest-asyncio>=0.23.8",
+    "pytest-mock>=3.15.1",
+    "ruff>=0.14.10",
+    "types-httplib2>=0.31.0.20250913",
+    "types-pyyaml>=6.0.12.20250915",
+    "types-requests>=2.32.4.20250913",
+]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.27.0",
+]
+
+[tool.ruff]
+# Target Python version
+target-version = "py311"
+
+# Line length
+line-length = 100
+
+[tool.ruff.lint]
+# Enable specific lint rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "D",   # pydocstyle
+]
+
+# Ignore specific rules
+ignore = [
+    "D100", # Missing docstring in public module
+    "D101", # Missing docstring in public class
+    "D102", # Missing docstring in public method
+    "D103", # Missing docstring in public function
+    "D104", # Missing docstring in public package
+    "D107", # Missing docstring in __init__
+    "N802", # Function name should be lowercase (legacy)
+    "E501", # Line too long
+    "D",    # All docstring rules
+    "UP031", # Use format specifiers (legacy percent format)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["sheriff"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.11"
+check_untyped_defs = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
+    "googleapiclient.*",
+    "google.auth.*"
+]
+ignore_missing_imports = true
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+tag_format = "v$version"
+version_files = ["pyproject.toml:version"]

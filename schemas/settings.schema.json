@@ -1,0 +1,178 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/solaegis/sheriff/schemas/settings.schema.json",
+  "title": "Sheriff Settings",
+  "description": "Configuration schema for Sheriff settings.yaml",
+  "type": "object",
+  "properties": {
+    "dns": {
+      "type": "object",
+      "description": "DNS provider configuration",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["cloud_dns"],
+          "description": "DNS provider type (only cloud_dns supported)"
+        },
+        "cloud_dns": {
+          "type": "object",
+          "description": "Google Cloud DNS configuration",
+          "properties": {
+            "project": {
+              "type": "string",
+              "description": "GCP project ID containing the managed zone"
+            },
+            "managed_zone": {
+              "type": "string",
+              "description": "Cloud DNS managed zone name"
+            },
+            "domain_suffix": {
+              "type": "string",
+              "description": "Domain suffix appended to hostnames (e.g., gcp.example.com)"
+            },
+            "default_ttl": {
+              "type": "integer",
+              "minimum": 60,
+              "maximum": 86400,
+              "default": 300,
+              "description": "Default TTL in seconds for DNS records"
+            },
+            "nameserver": {
+              "type": "string",
+              "default": "1.1.1.2",
+              "description": "Public DNS resolver for verification"
+            }
+          },
+          "required": ["project", "managed_zone"]
+        }
+      }
+    },
+    "inventory": {
+      "type": "object",
+      "description": "Inventory provider configuration",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["gcp_asset"],
+          "default": "gcp_asset",
+          "description": "Inventory provider (only gcp_asset supported)"
+        },
+        "gcp_asset": {
+          "type": "object",
+          "description": "GCP Cloud Asset Inventory configuration",
+          "properties": {
+            "scope": {
+              "type": "string",
+              "pattern": "^(folders|organizations|projects)/[a-zA-Z0-9-]+$",
+              "description": "Asset scope (folders/ID, organizations/ID, or projects/ID)"
+            },
+            "asset_types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of asset types to query"
+            }
+          }
+        }
+      }
+    },
+    "sheriff": {
+      "type": "object",
+      "description": "Core Sheriff configuration",
+      "properties": {
+        "pubsub": {
+          "type": "object",
+          "description": "Pub/Sub configuration",
+          "properties": {
+            "scopes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": ["https://www.googleapis.com/auth/cloud-platform"],
+              "description": "OAuth scopes for Pub/Sub access"
+            },
+            "subscription": {
+              "type": "string",
+              "pattern": "^projects/[^/]+/subscriptions/[^/]+$",
+              "description": "Full Pub/Sub subscription path"
+            },
+            "batch_size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "description": "Number of messages to pull per request"
+            }
+          },
+          "required": ["subscription"]
+        },
+        "retries": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 3,
+          "description": "Number of retries for API calls"
+        },
+        "max_concurrent_tasks": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20,
+          "description": "Maximum concurrent async tasks for message processing"
+        },
+        "slack": {
+          "type": "object",
+          "description": "Slack notification configuration",
+          "properties": {
+            "channel": {
+              "type": "string",
+              "pattern": "^#[a-z0-9-]+$",
+              "default": "#gcp-info",
+              "description": "Slack channel for notifications"
+            },
+            "username": {
+              "type": "string",
+              "default": "Sheriff",
+              "description": "Bot username for Slack messages"
+            }
+          }
+        },
+        "gcp": {
+          "type": "object",
+          "description": "GCP project configuration",
+          "properties": {
+            "default_project": {
+              "type": "string",
+              "description": "Default GCP project for metrics and operations"
+            }
+          }
+        },
+        "filters": {
+          "type": "object",
+          "description": "Business logic filters",
+          "properties": {
+            "project_prefix": {
+              "type": "string",
+              "default": "pcln-pl",
+              "description": "Prefix for relevant projects"
+            },
+            "sandbox_pattern": {
+              "type": "string",
+              "default": ".*-sandbox",
+              "description": "Regex pattern to identify sandbox projects to ignore"
+            },
+            "allowed_networks": {
+              "type": "array",
+              "items": { "type": "string" },
+              "default": ["pl-nonprod", "pl-prod"],
+              "description": "List of networks allowed for DNS operations"
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

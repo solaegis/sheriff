@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/solaegis/sheriff/schemas/policies.schema.json",
+  "title": "Sheriff Policies",
+  "description": "Configuration schema for Sheriff policies.yaml",
+  "type": "object",
+  "properties": {
+    "policies": {
+      "type": "array",
+      "description": "List of policy definitions",
+      "items": {
+        "$ref": "#/definitions/Policy"
+      }
+    }
+  },
+  "required": ["policies"],
+  "additionalProperties": false,
+  "definitions": {
+    "Policy": {
+      "type": "object",
+      "description": "A single policy definition",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Unique policy identifier (kebab-case)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable policy description"
+        },
+        "resource": {
+          "type": "string",
+          "enum": ["instance", "forwardingRule", "disk", "network", "firewall", "gce_project"],
+          "description": "GCP resource type this policy applies to"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "default": "medium",
+          "description": "Policy violation severity level"
+        },
+        "filters": {
+          "type": "array",
+          "description": "List of filter conditions (AND logic)",
+          "items": {
+            "$ref": "#/definitions/Filter"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "description": "Actions to execute when policy matches",
+          "items": {
+            "type": "string",
+            "enum": ["alert", "log", "dns", "inventory", "stop", "remediate"]
+          },
+          "minItems": 1
+        },
+        "remediation": {
+          "$ref": "#/definitions/Remediation"
+        }
+      },
+      "required": ["name", "resource", "actions"],
+      "additionalProperties": false
+    },
+    "Filter": {
+      "type": "object",
+      "description": "Filter condition using dot-notation field path",
+      "minProperties": 1,
+      "maxProperties": 1,
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "string",
+            "description": "Condition value (present, absent, regex:, contains:, not_equals:, >N, <N, or exact match)"
+          },
+          {
+            "type": "boolean",
+            "description": "Boolean match"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "in": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Value must be in this list"
+              },
+              "not_in": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Value must not be in this list"
+              }
+            }
+          },
+          {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Value must be in this list (legacy format)"
+          }
+        ]
+      }
+    },
+    "Remediation": {
+      "type": "object",
+      "description": "Auto-remediation configuration",
+      "properties": {
+        "add_labels": {
+          "type": "object",
+          "description": "Labels to add to the resource",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
