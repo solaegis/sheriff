@@ -40,7 +40,7 @@ dmypy.json
 
 # Local settings
 settings.yaml
-!settings.example.yaml
+!settings.yaml.example
 
 # OS
 .DS_Store

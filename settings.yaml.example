@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=./schemas/settings.schema.json
+dns:
+  provider: "cloud_dns" # "bind" | "cloud_dns"
+  cloud_dns:
+    project: "" # Your GCP project ID
+    managed_zone: "" # Your Cloud DNS managed zone name
+    domain_suffix: "" # Domain suffix, e.g., "gcp.example.com"
+    default_ttl: 300
+    nameserver: "1.1.1.2" # Public DNS resolver for verification
+
+inventory:
+  provider: "gcp_asset" # "gcp_asset" only (legacy removed)
+  gcp_asset:
+    scope: "" # "folders/FOLDER_ID" or "organizations/ORG_ID" or "projects/PROJECT_ID"
+    asset_types:
+      - "compute.googleapis.com/Instance"
+
+sheriff:
+  pubsub:
+    scopes: ["https://www.googleapis.com/auth/cloud-platform"]
+    subscription: ""
+    batch_size: 10
+  retries: 3
+  slack:
+    channel: "#gcp-info"
+    username: "Sheriff"
+  gcp:
+    default_project: ""
+  filters:
+    project_prefix: "dnlc-"
+    sandbox_pattern: ".*-sandbox"
+    allowed_networks:
+      - "nonprod"
+      - "prod"
